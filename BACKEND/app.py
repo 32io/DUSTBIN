@@ -128,11 +128,11 @@ def update_dustbin_state():
     # Publish message to Redis channel
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     if "full" in str(state):
-        user_email = "customer@email.com"  # Replace with actual user email
+        user_email = "wierd@email.com"  # Replace with actual user email
         phone_number = "+254701860614"  # Replace with actual user phone number
         provider = "mpesa"  # Mobile money provider
 
-        payment_response = initiate_payment(200, user_email, phone_number, provider,dustbin_id)
+        payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
         if "error" not in payment_response:
             data = payment_response["data"]
             print(data)
