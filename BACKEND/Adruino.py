@@ -8,7 +8,7 @@ class ADRUINO:
         self.capacity = capacity
         self.current_trash_level = 0
         self.previous_trash_level = None
-        self.server_url = "http://example.com/api"  # Replace with actual server URL
+        self.server_url = "http://localhost:5000"  # Replace with actual server URL
 
     def register_dustbin(self):
         """
@@ -19,7 +19,7 @@ class ADRUINO:
             "capacity": self.capacity
         }
         try:
-            response = requests.post(f"{self.server_url}/register", json=registration_data)
+            response = requests.post(f"{self.server_url}/register_dustbin", json=registration_data)
             print(f"Registered dustbin {self.dustbin_id}. Server response: {response.status_code}")
         except Exception as e:
             print(f"Failed to register dustbin: {e}")
@@ -42,11 +42,11 @@ class ADRUINO:
         if self.current_trash_level != self.previous_trash_level:
             status_data = {
                 "dustbin_id": self.dustbin_id,
-                "trash_level": self.current_trash_level,
-                "status": "full" if self.current_trash_level >= self.capacity else "not full"
+                # "trash_level": self.current_trash_level,
+                "state": "full" if self.current_trash_level >= self.capacity else "not full"
             }
             try:
-                response = requests.post(f"{self.server_url}/update", json=status_data)
+                response = requests.post(f"{self.server_url}/dustbin_state", json=status_data)
                 print(f"Sent update. Server response: {response.status_code}")
             except Exception as e:
                 print(f"Failed to send data: {e}")
