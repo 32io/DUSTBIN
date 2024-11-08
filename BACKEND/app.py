@@ -7,6 +7,9 @@ import redis
 import json
 import time
 
+import hmac
+import hashlib
+
 # Setup Flask app
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change to a more secure secret
@@ -19,7 +22,7 @@ mongo.db.dustbins.create_index([("email", 1)], unique=True)
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
 # Paystack Integration
-PAYSTACK_SECRET_KEY = "your_paystack_secret_key"  # Replace with your actual Paystack secret key
+PAYSTACK_SECRET_KEY = "sk_test_074c7fa10351c221e554fd60364b8ee4beb475d5"  # Replace with your actual Paystack secret key
 
 
 # Function to call Paystack's Mobile Money API
@@ -32,7 +35,7 @@ def initiate_payment(amount, email, phone, provider):
     payload = {
         "amount": amount,
         "email": email,
-        "currency": "GHS",
+        "currency": "KES",
         "mobile_money": {
             "phone": phone,
             "provider": provider,
@@ -123,24 +126,26 @@ def update_dustbin_state():
 
     # Publish message to Redis channel
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
-    if state == "full":
+    if "full" in str(state):
         user_email = "customer@email.com"  # Replace with actual user email
-        phone_number = "+254701860614"  # Replace with actual user phone number
+        phone_number = "+254710000000"  # Replace with actual user phone number
         provider = "mpesa"  # Mobile money provider
 
-        payment_response = initiate_payment(100, user_email, phone_number, provider)
+        payment_response = initiate_payment(200, user_email, phone_number, provider)
         if "error" not in payment_response:
-            pay_url = payment_response["data"].get("authorization_url", "")
+            pay_url = payment_response["data"]
             mongo.db.pending_payments.insert_one(
                 {"user_id": user_id, "dustbin_id": dustbin_id, "payment_url": pay_url}
             )
             redis_client.publish(user_id, json.dumps({"message": "Payment pending", "payment_url": pay_url}))
         else:
+            print(payment_response)
             return jsonify({"error": "Payment initiation failed", "details": payment_response}), 500
     else:
         redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
-
+    
     return jsonify({"message": "Dustbin state updated"}), 200
+
 
 
 # 7. SSE Notification Stream
@@ -160,6 +165,63 @@ def notifications():
 
     return Response(event_stream(), content_type="text/event-stream")
 
+# Webhook route to handle Paystack events
+@app.route("/webhook", methods=["POST"])
+def payment_webhook():
+    # Step 1: Verify signature to ensure the request is from Paystack
+    signature = request.headers.get("x-paystack-signature")
+    if not signature:
+        return jsonify({"error": "No signature provided"}), 403
+
+    # Calculate HMAC SHA512 signature using your Paystack secret key
+    payload = request.get_data()
+    computed_signature = hmac.new(
+        PAYSTACK_SECRET_KEY.encode("utf-8"),
+        payload,
+        hashlib.sha512
+    ).hexdigest()
+
+    if computed_signature != signature:
+        return jsonify({"error": "Invalid signature"}), 403
+
+    # Step 2: Process the webhook event
+    data = request.json
+    event_type = data.get("event")
+
+    # Handle 'charge.success' events
+    if event_type == "charge.success":
+        # Extract relevant information from the payload
+        reference = data["data"].get("reference")
+        status = data["data"].get("status")
+        if status == "success":
+            # Find the pending payment in MongoDB using the reference ID
+            pending_payment = mongo.db.pending_payments.find_one({"reference": reference})
+            if pending_payment:
+                # Update Dustbin state to "paid"
+                mongo.db.dustbins.update_one(
+                    {"dustbin_id": pending_payment["dustbin_id"]},
+                    {"$set": {"state": "paid"}}
+                )
+                # Remove the pending payment entry
+                mongo.db.pending_payments.delete_one({"reference": reference})
+
+                # Notify the user of the successful payment using Redis Pub/Sub
+                redis_client.publish(
+                    pending_payment["user_id"],
+                    json.dumps({
+                        "message": "Payment received. Trash will be picked up within 2 hours.",
+                        "status": "success"
+                    })
+                )
+
+    return jsonify({"status": "ok"}), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+"""
+ON PAYMENT 
+
+"""
