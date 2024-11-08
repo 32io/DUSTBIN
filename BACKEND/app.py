@@ -6,10 +6,12 @@ from bson.json_util import dumps
 import redis
 import json
 import time
-
+import os
 import hmac
 import hashlib
+from dotenv import load_dotenv
 
+load_dotenv()
 # Setup Flask app
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change to a more secure secret
@@ -22,7 +24,7 @@ mongo.db.dustbins.create_index([("email", 1)], unique=True)
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
 # Paystack Integration
-PAYSTACK_SECRET_KEY = "sk_live_fa1e3c5ca618ed101e78d2b7d9e1349b6209b1c5"  # Replace with your actual Paystack secret key
+PAYSTACK_SECRET_KEY = os.getenv("paystack_live")  # Replace with your actual Paystack secret key
 
 
 # Function to call Paystack's Mobile Money API
