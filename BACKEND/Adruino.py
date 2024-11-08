@@ -64,7 +64,7 @@ dustbin.register_dustbin()
 
 # Step 2: Simulate adding trash and sending updates
 for _ in range(10):
-    added_trash = random.randint(70, 100)  # Random amount of trash added
+    added_trash = random.randint(10, 30)  # Random amount of trash added
     dustbin.update_trash_level(added_trash)
     dustbin.send_data_update()
     time.sleep(1)  # Pause to simulate real-time behavior

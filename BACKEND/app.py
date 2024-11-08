@@ -154,8 +154,8 @@ def update_dustbin_state():
         else:
             print(payment_response)
             return jsonify({"error": "Payment initiation failed", "details": payment_response}), 500
-    else:
-        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
+    
+    redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
     
     return jsonify({"message": "Dustbin state updated"}), 200
 
