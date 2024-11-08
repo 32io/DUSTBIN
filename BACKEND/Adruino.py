@@ -43,7 +43,7 @@ class ADRUINO:
             status_data = {
                 "dustbin_id": self.dustbin_id,
                 # "trash_level": self.current_trash_level,
-                "state": "full" if self.current_trash_level >= self.capacity else "not full"
+                "state": f"full-{self.capacity}" if self.current_trash_level >= self.capacity else  self.current_trash_level
             }
             try:
                 response = requests.post(f"{self.server_url}/dustbin_state", json=status_data)

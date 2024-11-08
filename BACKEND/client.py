@@ -64,7 +64,7 @@ def listen_for_notifications():
     print("Listening for SSE notifications...")
     with session.get(f"{BASE_URL}/notifications", stream=True) as response:
         client = sseclient.SSEClient(response)
-        
+
         for event in client.events():
             print("Received event:", event.data)
 
