@@ -3,3 +3,4 @@ sseclient-py
 redis 
 flask 
 python-dotenv
+requests
