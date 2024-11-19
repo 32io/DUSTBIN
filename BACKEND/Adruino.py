@@ -8,7 +8,7 @@ class ADRUINO:
         self.capacity = capacity
         self.current_trash_level = 0
         self.previous_trash_level = None
-        self.server_url = "http://localhost:5000"  # Replace with actual server URL
+        self.server_url = "http://backend:5000"  # Replace with actual server URL
 
     def register_dustbin(self):
         """
