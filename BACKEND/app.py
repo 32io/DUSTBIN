@@ -17,11 +17,11 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
-mongo = MongoClient("mongodb://test-mongo:27017/trash_mgmt")
+mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
 mongo.db.dustbins.create_index([("email", 1)], unique=True)
 
 # Initialize Redis Client
-redis_client = redis.StrictRedis(host='redis-stack-server', port=6379, decode_responses=True)
+redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
 # Paystack Integration
 PAYSTACK_SECRET_KEY = os.getenv("paystack_live")  # Replace with your actual Paystack secret key
