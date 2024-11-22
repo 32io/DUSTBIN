@@ -8,7 +8,7 @@ cd ..
 cd ..
 cd ..
 rm ./project_4.1 -r -force
-docker network create --driver bridge backend-net 
+# docker network create --driver bridge backend-net 
 
 # # RUNNING 
 docker run -d  --rm -p 27017:27017   --name test-mongo  -v data-vol:/data/db     mongo:latest
