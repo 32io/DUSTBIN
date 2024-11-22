@@ -117,7 +117,7 @@ def list_dustbins():
 @app.route("/", methods=["GET"])
 def home():
     return Response("I AM WORKING ")
-@app.route("/payment_start")
+@app.route("/payment_start", methods=["POST"])
 def payment_processing():
     data = request.json
     user_email = data.get("email")

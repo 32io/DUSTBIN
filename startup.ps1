@@ -16,6 +16,6 @@ docker run -d  --rm --name redis-stack-server -p 6379:6379 redis/redis-stack-ser
 # pip install -r  req.txt
 docker run -d --rm --name=backend  --net=host   -e paystack_live="sk_live_87f1e81b9fc0d219a67522e90b161e6e7fcc676d" project-4.1-backend python ./app.py
 docker run -d --rm --name=ngrok --net=host   -e NGROK_AUTHTOKEN=2pDuafBVsbUROJClQSkpBodzWl8_4TL3SQoXaWshLucT66bej ngrok/ngrok:latest http --url=factual-flying-scorpion.ngrok-free.app 5000
-docker run  --rm --net=host  project-4.1-backend python ./client.py
+docker run   --rm --net=host  project-4.1-backend python ./client.py
 ## TESTING ADRUINO
-docker run --rm --net=host  project-4.1-backend python ./Adruino.py
+# docker run --rm --net=host  project-4.1-backend python ./Adruino.py
