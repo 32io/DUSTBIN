@@ -1,6 +1,6 @@
 import requests
 import sseclient
-
+import json
 # Server URL
 BASE_URL = "http://127.0.0.1:5000"
 
@@ -9,7 +9,7 @@ user_data = {
     "email": "testuser@example.com",
     "password": "securepassword123"
 }
-
+phone_number = "+254701860614"
 # Dustbin data
 dustbin_data = {
     "dustbin_id": "DB123",
@@ -59,6 +59,18 @@ def list_dustbins():
     else:
         print("Failed to list dustbins:", response.json())
 
+def initiate_payment(dustbin_id):
+    payment_data = {
+        "email": user_data["email"],
+        "dustbin_id": dustbin_id,
+        "phone": phone_number
+    }
+    response = session.post(f"{BASE_URL}/payment_start", json=payment_data)
+    if response.status_code == 200:
+        print("Payment initiated successfully.")
+        print("Response:", response.json())
+    else:
+        print("Payment initiation failed:", response.json())
 # 5. Listen for SSE Notifications
 def listen_for_notifications():
     print("Listening for SSE notifications...")
@@ -67,6 +79,18 @@ def listen_for_notifications():
 
         for event in client.events():
             print("Received event:", event.data)
+            try:
+                # Parse the notification as JSON
+                notification_data = json.loads(event.data)
+
+                # Check if the notification is about a "full" dustbin state
+                if"full" in   notification_data.get("state")  :
+                    print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
+                    initiate_payment(notification_data.get("dustbin_id"))
+                else:
+                    print("Notification received:", notification_data)
+            except Exception as e:
+                print("Error processing notification:", e)
 
 # Running the client sequence
 if __name__ == "__main__":

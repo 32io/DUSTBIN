@@ -114,27 +114,21 @@ def list_dustbins():
     dustbins = list(mongo.db.dustbins.find({"user_id": user_id}))
     return Response(dumps(dustbins), mimetype="application/json")
 
-
-# 6. Update Dustbin State
-@app.route("/dustbin_state", methods=["POST"])
-def update_dustbin_state():
+@app.route("/", methods=["GET"])
+def home():
+    return Response("I AM WORKING ")
+@app.route("/payment_start")
+def payment_processing():
     data = request.json
+    user_email = data.get("email")
     dustbin_id = data.get("dustbin_id")
-    state = data.get("state")
+    phone_number=data.get("phone")
 
-    mongo.db.dustbins.update_one(
-        {"dustbin_id": dustbin_id},
-        {"$set": {"state": state}},
-    )
+    provider = "mpesa"  # Mobile money provider
 
-    # Publish message to Redis channel
+    payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
-    if "full" in str(state):
-        user_email = "wierd@email.com"  # Replace with actual user email
-        phone_number = "+254701860614"  # Replace with actual user phone number
-        provider = "mpesa"  # Mobile money provider
-
-        payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
+    if user_id:
         if "error" not in payment_response:
             data = payment_response["data"]
             print(data)
@@ -156,8 +150,26 @@ def update_dustbin_state():
         else:
             print(payment_response)
             return jsonify({"error": "Payment initiation failed", "details": payment_response}), 500
-    
-    redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
+
+    return jsonify({"message": "Payment suceesful"}), 200
+
+# 6. Update Dustbin State
+@app.route("/dustbin_state", methods=["POST"])
+def update_dustbin_state():
+    data = request.json
+    dustbin_id = data.get("dustbin_id")
+    state = data.get("state")
+
+    mongo.db.dustbins.update_one(
+        {"dustbin_id": dustbin_id},
+        {"$set": {"state": state}},
+    )
+
+    # Publish message to Redis channel
+    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    if user_id:
+        
+        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
     
     return jsonify({"message": "Dustbin state updated"}), 200
 
