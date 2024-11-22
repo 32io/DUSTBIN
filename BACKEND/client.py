@@ -2,7 +2,7 @@ import requests
 import sseclient
 import json
 # Server URL
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "http://factual-flying-scorpion.ngrok-free.app"
 
 # User data for signup and login
 user_data = {
@@ -84,7 +84,7 @@ def listen_for_notifications():
                 notification_data = json.loads(event.data)
 
                 # Check if the notification is about a "full" dustbin state
-                if"full" in   notification_data.get("state")  :
+                if"full" in  str( notification_data.get("state") ) :
                     print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
                     initiate_payment(notification_data.get("dustbin_id"))
                 else:

@@ -169,7 +169,7 @@ def update_dustbin_state():
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     if user_id:
         
-        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated", "state": state}))
+        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated","dustbin_id":dustbin_id, "state": state}))
     
     return jsonify({"message": "Dustbin state updated"}), 200
 
