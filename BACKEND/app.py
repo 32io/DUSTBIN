@@ -161,6 +161,15 @@ def update_dustbin_state():
     
     return jsonify({"message": "Dustbin state updated"}), 200
 
+@app.route("/register_dustbin", methods=["POST"])
+def register_dustbin():
+    data = request.json
+    mongo.db.dustbins.update_one(
+        {"dustbin_id": data["dustbin_id"]},
+        {"$set": {"state": data.get("state", "empty")}},
+        upsert=True,
+    )
+    return jsonify({"message": "Dustbin registered successfully"}), 200
 
 
 # 7. SSE Notification Stream
