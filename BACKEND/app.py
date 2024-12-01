@@ -112,6 +112,7 @@ def list_dustbins():
         return jsonify({"error": "Unauthorized"}), 403
 
     dustbins = list(mongo.db.dustbins.find({"user_id": user_id}))
+    print(dustbins)
     return Response(dumps(dustbins), mimetype="application/json")
 
 @app.route("/", methods=["GET"])
