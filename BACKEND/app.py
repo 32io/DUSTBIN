@@ -184,17 +184,21 @@ def update_dustbin_state():
     )
 
 
-    # Publish message to Redis channel
-    dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
+   dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
     if dustbin:
         user_id = dustbin.get("user_id")
         redis_client.publish(user_id, json.dumps({
             "message": "Dustbin state updated",
             "dustbin_id": dustbin_id, 
-            "state": state
+            "state": state_str
         }))
     
-    return jsonify({"message": "Dustbin state updated"}), 200
+    # Send a clear, explicit response
+    return jsonify({
+        "message": "Dustbin state updated successfully", 
+        "dustbin_id": dustbin_id, 
+        "state": state_str
+    }), 200
 
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
