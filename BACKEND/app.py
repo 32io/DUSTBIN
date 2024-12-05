@@ -18,7 +18,7 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
 mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
-mongo.db.dustbins.create_index([("dustbin_id", 1)], unique=True)
+mongo.db.dustbins.create_index([("email", 1)], unique=True)
 
 # Initialize Redis Client
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
@@ -49,6 +49,7 @@ def initiate_payment(amount, email, phone, provider,dustbin):
 
 
 # Routes
+
 # 1. User Signup
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -60,6 +61,7 @@ def signup():
     hashed_password = generate_password_hash(data["password"])
     mongo.db.users.insert_one({"email": data["email"], "password": hashed_password})
     return jsonify({"message": "User created successfully"}), 201
+
 
 # 2. User Login
 @app.route("/login", methods=["POST"])
@@ -159,58 +161,29 @@ def update_dustbin_state():
     dustbin_id = data.get("dustbin_id")
     state = data.get("state")
 
-    # Validate input
-    if not dustbin_id or state is None:
-        return jsonify({"error": "Dustbin ID and state are required"}), 400
-
-    # Update dustbin state in MongoDB
-    result = mongo.db.dustbins.update_one(
+    mongo.db.dustbins.update_one(
         {"dustbin_id": dustbin_id},
         {"$set": {"state": state}},
     )
 
-    # If no dustbin was found, return an error
-    if result.modified_count == 0:
-        return jsonify({"error": "Dustbin not found"}), 404
-        
     # Publish message to Redis channel
- user_doc = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
-    if user_doc and user_doc.get("user_id"):
-        redis_client.publish(
-            user_doc["user_id"], 
-            json.dumps({
-                "dustbin_id": dustbin_id, 
-                "state": state
-            })
-        )
+    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    if user_id:
+        
+        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated","dustbin_id":dustbin_id, "state": state}))
     
-    return jsonify({"message": "Dustbin state updated successfully"}), 200
-    
-    return jsonify({"message": "Dustbin state updated successfully"}), 200
+    return jsonify({"message": "Dustbin state updated"}), 200
 
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
     data = request.json
-    dustbin_id = data.get("dustbin_id")
-    
-    # Check if dustbin_id is present
-    if not dustbin_id:
-        return jsonify({"error": "Dustbin ID is required"}), 400
-    
-    # Update or insert dustbin information
     mongo.db.dustbins.update_one(
-        {"dustbin_id": dustbin_id},
-        {
-            "$set": {
-                "dustbin_id": dustbin_id,
-                "capacity": data.get("capacity", 100),  # Default to 100 if not provided
-                "state": "empty",  # Initial state
-            }
-        },
-        upsert=True
+        {"dustbin_id": data["dustbin_id"]},
+        {"$set": {"state": data.get("state", "empty")}},
+        upsert=True,
     )
-    
     return jsonify({"message": "Dustbin registered successfully"}), 200
+
 
 # 7. SSE Notification Stream
 @app.route("/notifications")
