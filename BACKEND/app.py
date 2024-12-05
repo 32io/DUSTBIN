@@ -175,16 +175,16 @@ def update_dustbin_state():
         return jsonify({"error": "Dustbin not found"}), 404
         
     # Publish message to Redis channel
-  user_doc = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
-    if user_doc and user_doc.get("user_id"):
-        redis_client.publish(
-            user_doc["user_id"], 
-            json.dumps({
-                "message": "Dustbin state updated", 
-                "dustbin_id": dustbin_id, 
-                "state": state
-            })
-        )
+ user_doc = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
+if user_doc and user_doc.get("user_id"):
+    redis_client.publish(
+        user_doc["user_id"], 
+        json.dumps({
+            "message": "Dustbin state updated", 
+            "dustbin_id": dustbin_id, 
+            "state": state
+        })
+    )
     
     return jsonify({"message": "Dustbin state updated successfully"}), 200
 
