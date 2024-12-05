@@ -103,24 +103,6 @@ def add_dustbin():
     )
     return jsonify({"message": "Dustbin added"}), 201
     
-    # New endpoint for bin status
-   @app.route("/bin/status", methods=["GET"])
-def get_bin_status():
-    user_email = request.args.get("userId")
-    if not user_email:
-        return jsonify({"error": "User ID required"}), 400
-    
-    dustbin = mongo.db.dustbins.find_one({"user_id": user_email})
-    if not dustbin:
-        return jsonify({"error": "No dustbin found"}), 404
-    
-    return jsonify({
-        "binId": dustbin.get("dustbin_id", ""),
-        "fillLevel": int(dustbin.get("state", 0)) if str(dustbin.get("state", "0")).isdigit() else 0,
-        "state": str(dustbin.get("state", "0"))
-    }) 
-
-
 # 5. List Dustbins
 @app.route("/dustbins", methods=["GET"])
 def list_dustbins():
