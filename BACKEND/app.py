@@ -61,7 +61,6 @@ def signup():
     mongo.db.users.insert_one({"email": data["email"], "password": hashed_password})
     return jsonify({"message": "User created successfully"}), 201
 
-
 # 2. User Login
 @app.route("/login", methods=["POST"])
 def login():
