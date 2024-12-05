@@ -14,11 +14,11 @@ from dotenv import load_dotenv
 load_dotenv()
 # Setup Flask app
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")  # Change to a more secure secret
+app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
 mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
-mongo.db.dustbins.create_index([("dustbin_id", 1)], unique=True)
+mongo.db.dustbins.create_index([("email", 1)], unique=True)
 
 # Initialize Redis Client
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
@@ -78,7 +78,6 @@ def login():
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user_id", None)
-    session.pop("email", None)
     return jsonify({"message": "Logged out successfully"}), 200
 
 
@@ -94,32 +93,17 @@ def add_dustbin():
         {"dustbin_id": data["dustbin_id"]},
         {
             "$set": {
-                "user_id": session.get("email"),  # Use email as user identifier
+                "user_id": user_id,
                 "dustbin_id": data["dustbin_id"],
-                "state": "0",  # Initial state as 0%
+                "state": "empty",
                 "location": data.get("location"),
             }
         },
         upsert=True,
     )
     return jsonify({"message": "Dustbin added"}), 201
-    
-# New endpoint for bin status
-@app.route("/bin/status", methods=["GET"])
-def get_bin_status():
-    user_email = request.args.get("userId")
-    if not user_email:
-        return jsonify({"error": "User ID required"}), 400
-    
-    dustbin = mongo.db.dustbins.find_one({"user_id": user_email})
-    if not dustbin:
-        return jsonify({"error": "No dustbin found"}), 404
-    
-    return jsonify({
-        "binId": dustbin.get("dustbin_id", ""),
-        "fillLevel": int(dustbin.get("state", 0)) if str(dustbin.get("state", "0")).isdigit() else 0,
-        "state": str(dustbin.get("state", "0"))
-    })    
+
+
 # 5. List Dustbins
 @app.route("/dustbins", methods=["GET"])
 def list_dustbins():
@@ -127,10 +111,9 @@ def list_dustbins():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    dustbins = list(mongo.db.dustbins.find({"user_id": session.get("email")}))
+    dustbins = list(mongo.db.dustbins.find({"user_id": user_id}))
+    print(dustbins)
     return Response(dumps(dustbins), mimetype="application/json")
-
-    
 
 @app.route("/", methods=["GET"])
 def home():
@@ -178,35 +161,18 @@ def update_dustbin_state():
     dustbin_id = data.get("dustbin_id")
     state = data.get("state")
 
-    if not dustbin_id or state is None:
-        return jsonify({"error": "Missing dustbin_id or state"}), 400
-
-    # Ensure state is converted to a string
-    state_str = str(state)
-
-    # Update dustbin in MongoDB
-    result = mongo.db.dustbins.update_one(
+    mongo.db.dustbins.update_one(
         {"dustbin_id": dustbin_id},
-        {"$set": {"state": state_str}},
+        {"$set": {"state": state}},
     )
 
-
- # Publish message to Redis channel  
-dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
-    if dustbin:
-        user_id = dustbin.get("user_id")
-        redis_client.publish(user_id, json.dumps({
-            "message": "Dustbin state updated",
-            "dustbin_id": dustbin_id, 
-            "state": state_str
-        }))
+    # Publish message to Redis channel
+    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    if user_id:
+        
+        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated","dustbin_id":dustbin_id, "state": state}))
     
-    # Send a clear, explicit response
-    return jsonify({
-        "message": "Dustbin state updated successfully", 
-        "dustbin_id": dustbin_id, 
-        "state": state_str
-    }), 200
+    return jsonify({"message": "Dustbin state updated"}), 200
 
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
