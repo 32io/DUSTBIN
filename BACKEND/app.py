@@ -130,29 +130,7 @@ def list_dustbins():
     dustbins = list(mongo.db.dustbins.find({"user_id": session.get("email")}))
     return Response(dumps(dustbins), mimetype="application/json")
 
-# 6. Update Dustbin State
-@app.route("/dustbin_state", methods=["POST"])
-def update_dustbin_state():
-    data = request.json
-    dustbin_id = data.get("dustbin_id")
-    state = data.get("state")
-
-    mongo.db.dustbins.update_one(
-        {"dustbin_id": dustbin_id},
-        {"$set": {"state": state}},
-    )
-
-# Publish message to Redis channel
-    dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
-    if dustbin:
-        user_id = dustbin.get("user_id")
-        redis_client.publish(user_id, json.dumps({
-            "message": "Dustbin state updated",
-            "dustbin_id": dustbin_id, 
-            "state": state
-        }))
     
-    return jsonify({"message": "Dustbin state updated"}), 200
 
 @app.route("/", methods=["GET"])
 def home():
@@ -205,11 +183,16 @@ def update_dustbin_state():
         {"$set": {"state": state}},
     )
 
+
     # Publish message to Redis channel
-    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
-    if user_id:
-        
-        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated","dustbin_id":dustbin_id, "state": state}))
+    dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
+    if dustbin:
+        user_id = dustbin.get("user_id")
+        redis_client.publish(user_id, json.dumps({
+            "message": "Dustbin state updated",
+            "dustbin_id": dustbin_id, 
+            "state": state
+        }))
     
     return jsonify({"message": "Dustbin state updated"}), 200
 
