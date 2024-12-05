@@ -178,13 +178,21 @@ def update_dustbin_state():
     dustbin_id = data.get("dustbin_id")
     state = data.get("state")
 
-    mongo.db.dustbins.update_one(
+    if not dustbin_id or state is None:
+        return jsonify({"error": "Missing dustbin_id or state"}), 400
+
+    # Ensure state is converted to a string
+    state_str = str(state)
+
+    # Update dustbin in MongoDB
+    result = mongo.db.dustbins.update_one(
         {"dustbin_id": dustbin_id},
-        {"$set": {"state": state}},
+        {"$set": {"state": state_str}},
     )
 
 
-   dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
+ # Publish message to Redis channel  
+dustbin = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id})
     if dustbin:
         user_id = dustbin.get("user_id")
         redis_client.publish(user_id, json.dumps({
