@@ -177,7 +177,6 @@ def update_dustbin_state():
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
     data = request.json
-     print("Received Registration Data:", data)
     mongo.db.dustbins.update_one(
         {"dustbin_id": data["dustbin_id"]},
         {"$set": {"state": data.get("state", "empty")}},
