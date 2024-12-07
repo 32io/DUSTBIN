@@ -176,25 +176,13 @@ def update_dustbin_state():
 
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
-    print("Incoming Request Headers:", request.headers)
-    print("Incoming Request Data:", request.get_data())
     data = request.json
-    print("Parsed JSON Data:", data)
-    
-    if not data:
-        print("No JSON data received")
-        return jsonify({"error": "No data provided"}), 400
-    
-    try:
-        mongo.db.dustbins.update_one(
-            {"dustbin_id": data["dustbin_id"]},
-            {"$set": {"state": data.get("state", "empty")}},
-            upsert=True,
-        )
-        return jsonify({"message": "Dustbin registered successfully"}), 200
-    except Exception as e:
-        print(f"Registration error: {e}")
-        return jsonify({"error": str(e)}), 500
+    mongo.db.dustbins.update_one(
+        {"dustbin_id": data["dustbin_id"]},
+        {"$set": {"state": data.get("state", "empty")}},
+        upsert=True,
+    )
+    return jsonify({"message": "Dustbin registered successfully"}), 200
 
 
 # 7. SSE Notification Stream
