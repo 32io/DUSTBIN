@@ -129,6 +129,7 @@ def payment_processing():
 
     payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    print(payment_response)
     if user_id:
         if "error" not in payment_response:
             data = payment_response["data"]
