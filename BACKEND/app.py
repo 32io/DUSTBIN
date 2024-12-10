@@ -17,22 +17,36 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
-mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
-mongo.db.users.create_index([("email", 1)], unique=True)
 
+mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
+pass_=os.getenv("MONGODB_PASSWORD")
+uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# SALT  = bcrypt.gensalt() 
+mongo.db.users.create_index([("email", 1)], unique=True)
+client = MongoClient(uri, server_api=ServerApi("1"))
+try:
+    client.admin.command("ping")
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+# db = client["GRID"]
+db = client["DUSTBIN"]
 # Initialize Redis Client
-redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
+redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
 # Paystack Integration
-PAYSTACK_SECRET_KEY = os.getenv("paystack_live")  # Replace with your actual Paystack secret key
+PAYSTACK_SECRET_KEY = os.getenv(
+    "paystack_live"
+)  # Replace with your actual Paystack secret key
 import logging
 
 _logger = logging.getLogger(__name__)
 
 # and then in your code you can use:
 
+
 # Function to call Paystack's Mobile Money API
-def initiate_payment(amount, email, phone, provider,dustbin):
+def initiate_payment(amount, email, phone, provider, dustbin):
     url = "https://api.paystack.co/charge"
     headers = {
         "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
@@ -42,17 +56,22 @@ def initiate_payment(amount, email, phone, provider,dustbin):
         "amount": amount,
         "email": email,
         "currency": "KES",
-        "dustbin_id":dustbin,
+        "dustbin_id": dustbin,
         "mobile_money": {
             "phone": phone,
             "provider": provider,
         },
     }
     response = requests.post(url, json=payload, headers=headers)
-    return response.json() if response.status_code == 200 else {"error": "Payment initiation failed", "details": response.json()}
+    return (
+        response.json()
+        if response.status_code == 200
+        else {"error": "Payment initiation failed", "details": response.json()}
+    )
 
 
 # Routes
+
 
 # 1. User Signup
 @app.route("/signup", methods=["POST"])
@@ -119,19 +138,24 @@ def list_dustbins():
     print(dustbins)
     return Response(dumps(dustbins), mimetype="application/json")
 
+
 @app.route("/woww", methods=["GET"])
 def home():
     return Response("I AM WORKING ")
+
+
 @app.route("/payment_start", methods=["POST"])
 def payment_processing():
     data = request.json
     user_email = data.get("email")
     dustbin_id = data.get("dustbin_id")
-    phone_number=data.get("phone")
+    phone_number = data.get("phone")
 
     provider = "mpesa"  # Mobile money provider
 
-    payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
+    payment_response = initiate_payment(
+        300, user_email, phone_number, provider, dustbin_id
+    )
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     print(payment_response)
     _logger.info(payment_response)
@@ -139,26 +163,48 @@ def payment_processing():
         if "error" not in payment_response:
             data = payment_response["data"]
             print(data)
-                
 
-            if data.get("status")=="pay_offline":
-                reference=data["reference"]
-                mongo.db.dustbins.update_one({"dustbin_id": dustbin_id},{"$set":{
-                    "reference_pay":reference
-                }})
+            if data.get("status") == "pay_offline":
+                reference = data["reference"]
+                mongo.db.dustbins.update_one(
+                    {"dustbin_id": dustbin_id}, {"$set": {"reference_pay": reference}}
+                )
                 # mongo.db.pending_payments.insert_one(
                 #     {"user_id": user_id, "dustbin_id": dustbin_id, "payment_url": pay_url}
                 # )""
-                redis_client.publish(user_id, json.dumps({"message": "Payment pending", "payment_state":"Pending","display":data["display_text"]}))
+                redis_client.publish(
+                    user_id,
+                    json.dumps(
+                        {
+                            "message": "Payment pending",
+                            "payment_state": "Pending",
+                            "display": data["display_text"],
+                        }
+                    ),
+                )
             # print(reference)
             # if reference:
             else:
-                return jsonify({"error": "Payment initiation failed", "details": payment_response}), 500
+                return (
+                    jsonify(
+                        {
+                            "error": "Payment initiation failed",
+                            "details": payment_response,
+                        }
+                    ),
+                    500,
+                )
         else:
             print(payment_response)
-            return jsonify({"error": "Payment initiation failed", "details": payment_response}), 500
+            return (
+                jsonify(
+                    {"error": "Payment initiation failed", "details": payment_response}
+                ),
+                500,
+            )
 
     return jsonify({"message": "Payment suceesful"}), 200
+
 
 # 6. Update Dustbin State
 @app.route("/dustbin_state", methods=["POST"])
@@ -175,10 +221,20 @@ def update_dustbin_state():
     # Publish message to Redis channel
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     if user_id:
-        
-        redis_client.publish(user_id, json.dumps({"message": "Dustbin state updated","dustbin_id":dustbin_id, "state": state}))
-    
+
+        redis_client.publish(
+            user_id,
+            json.dumps(
+                {
+                    "message": "Dustbin state updated",
+                    "dustbin_id": dustbin_id,
+                    "state": state,
+                }
+            ),
+        )
+
     return jsonify({"message": "Dustbin state updated"}), 200
+
 
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
@@ -208,6 +264,7 @@ def notifications():
 
     return Response(event_stream(), content_type="text/event-stream")
 
+
 # Webhook route to handle Paystack events
 @app.route("/webhook", methods=["POST"])
 def payment_webhook():
@@ -220,9 +277,7 @@ def payment_webhook():
     payload = request.get_data()
 
     computed_signature = hmac.new(
-        PAYSTACK_SECRET_KEY.encode("utf-8"),
-        payload,
-        hashlib.sha512
+        PAYSTACK_SECRET_KEY.encode("utf-8"), payload, hashlib.sha512
     ).hexdigest()
 
     if computed_signature != signature:
@@ -240,13 +295,12 @@ def payment_webhook():
         status = data["data"].get("status")
         if status == "success":
             # Find the pending payment in MongoDB using the reference ID
-            print("here",reference)
-            dustbin= mongo.db.dustbins.find_one({"reference_pay": reference})
+            print("here", reference)
+            dustbin = mongo.db.dustbins.find_one({"reference_pay": reference})
             if dustbin:
                 # Update Dustbin state to "paid"
                 mongo.db.dustbins.update_one(
-                    {"reference_pay": reference},
-                    {"$set": {"reference_pay": "None"}}
+                    {"reference_pay": reference}, {"$set": {"reference_pay": "None"}}
                 )
                 # Remove the pending payment entry
                 # mongo.db.pending_payments.delete_one({"reference": reference})
@@ -254,10 +308,12 @@ def payment_webhook():
                 # Notify the user of the successful payment using Redis Pub/Sub
                 redis_client.publish(
                     dustbin["user_id"],
-                    json.dumps({
-                        "message": "Payment received. Trash will be picked up within 2 hours.",
-                        "status": "success"
-                    })
+                    json.dumps(
+                        {
+                            "message": "Payment received. Trash will be picked up within 2 hours.",
+                            "status": "success",
+                        }
+                    ),
                 )
 
     return jsonify({"status": "ok"}), 200
