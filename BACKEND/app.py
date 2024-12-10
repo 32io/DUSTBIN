@@ -32,7 +32,7 @@ except Exception as e:
 # db = client["GRID"]
 db = client["DUSTBIN"]
 # Initialize Redis Client
-redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
+# redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
 # Paystack Integration
 PAYSTACK_SECRET_KEY = os.getenv(
@@ -172,16 +172,16 @@ def payment_processing():
                 # mongo.db.pending_payments.insert_one(
                 #     {"user_id": user_id, "dustbin_id": dustbin_id, "payment_url": pay_url}
                 # )""
-                redis_client.publish(
-                    user_id,
-                    json.dumps(
-                        {
-                            "message": "Payment pending",
-                            "payment_state": "Pending",
-                            "display": data["display_text"],
-                        }
-                    ),
-                )
+                # redis_client.publish(
+                #     user_id,
+                #     json.dumps(
+                #         {
+                #             "message": "Payment pending",
+                #             "payment_state": "Pending",
+                #             "display": data["display_text"],
+                #         }
+                #     ),
+                # )
             # print(reference)
             # if reference:
             else:
@@ -221,17 +221,18 @@ def update_dustbin_state():
     # Publish message to Redis channel
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     if user_id:
+        pass
 
-        redis_client.publish(
-            user_id,
-            json.dumps(
-                {
-                    "message": "Dustbin state updated",
-                    "dustbin_id": dustbin_id,
-                    "state": state,
-                }
-            ),
-        )
+        # redis_client.publish(
+        #     user_id,
+        #     json.dumps(
+        #         {
+        #             "message": "Dustbin state updated",
+        #             "dustbin_id": dustbin_id,
+        #             "state": state,
+        #         }
+        #     ),
+        # )
 
     return jsonify({"message": "Dustbin state updated"}), 200
 
@@ -248,21 +249,21 @@ def register_dustbin():
 
 
 # 7. SSE Notification Stream
-@app.route("/notifications")
-@stream_with_context
-def notifications():
-    user_id = session.get("user_id")
-    if not user_id:
-        return jsonify({"error": "Unauthorized"}), 403
+# @app.route("/notifications")
+# @stream_with_context
+# def notifications():
+#     user_id = session.get("user_id")
+#     if not user_id:
+#         return jsonify({"error": "Unauthorized"}), 403
 
-    def event_stream():
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(user_id)  # Subscribes to the user's unique channel
-        for message in pubsub.listen():
-            if message["type"] == "message":
-                yield f"data: {message['data']}\n\n"
+#     def event_stream():
+#         # pubsub = redis_client.pubsub()
+#         pubsub.subscribe(user_id)  # Subscribes to the user's unique channel
+#         for message in pubsub.listen():
+#             if message["type"] == "message":
+#                 yield f"data: {message['data']}\n\n"
 
-    return Response(event_stream(), content_type="text/event-stream")
+#     return Response(event_stream(), content_type="text/event-stream")
 
 
 # Webhook route to handle Paystack events
@@ -306,15 +307,15 @@ def payment_webhook():
                 # mongo.db.pending_payments.delete_one({"reference": reference})
 
                 # Notify the user of the successful payment using Redis Pub/Sub
-                redis_client.publish(
-                    dustbin["user_id"],
-                    json.dumps(
-                        {
-                            "message": "Payment received. Trash will be picked up within 2 hours.",
-                            "status": "success",
-                        }
-                    ),
-                )
+                # redis_client.publish(
+                #     dustbin["user_id"],
+                #     json.dumps(
+                #         {
+                #             "message": "Payment received. Trash will be picked up within 2 hours.",
+                #             "status": "success",
+                #         }
+                #     ),
+                # )
 
     return jsonify({"status": "ok"}), 200
 
