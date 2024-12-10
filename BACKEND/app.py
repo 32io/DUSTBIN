@@ -18,7 +18,7 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
 mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
-mongo.db.dustbins.create_index([("email", 1)], unique=True)
+mongo.db.users.create_index([("email", 1)], unique=True)
 
 # Initialize Redis Client
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
