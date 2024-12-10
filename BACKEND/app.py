@@ -25,7 +25,11 @@ redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=T
 
 # Paystack Integration
 PAYSTACK_SECRET_KEY = os.getenv("paystack_live")  # Replace with your actual Paystack secret key
+import logging
 
+_logger = logging.getLogger(__name__)
+
+# and then in your code you can use:
 
 # Function to call Paystack's Mobile Money API
 def initiate_payment(amount, email, phone, provider,dustbin):
@@ -130,6 +134,7 @@ def payment_processing():
     payment_response = initiate_payment(300, user_email, phone_number, provider,dustbin_id)
     user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     print(payment_response)
+    _logger.info(payment_response)
     if user_id:
         if "error" not in payment_response:
             data = payment_response["data"]
