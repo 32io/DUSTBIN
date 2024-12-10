@@ -119,7 +119,7 @@ def list_dustbins():
     print(dustbins)
     return Response(dumps(dustbins), mimetype="application/json")
 
-@app.route("/", methods=["GET"])
+@app.route("/woww", methods=["GET"])
 def home():
     return Response("I AM WORKING ")
 @app.route("/payment_start", methods=["POST"])
