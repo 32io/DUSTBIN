@@ -22,11 +22,11 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 # mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
 pass_=os.getenv("MONGODB_PASSWORD")
 # print(pass_,"heeeeeeeeeeeeeeeeeeeeeee")
-uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/DUSTBIN?retryWrites=true&w=majority&appName=Cluster0"
 # SALT  = bcrypt.gensalt() 
 
 
-app = Flask(__name__)
+# app = Flask(__name__)
 app.config["MONGO_URI"] =uri
 # client = MongoClient(uri, server_api=ServerApi("1"),connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
 client=PyMongo(app)
@@ -36,7 +36,7 @@ try:
 except Exception as e:
     print(e)
 # db = client["GRID"]
-db = client["DUSTBIN"]
+db = client.db
 db.users.create_index([("email", 1)], unique=True)
 # Initialize Redis Client
 # redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
