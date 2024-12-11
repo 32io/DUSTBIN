@@ -3,14 +3,14 @@ from flask import Flask, request, jsonify, session, Response, stream_with_contex
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.json_util import dumps
-import redis
-import json
-import time
+# import redis
+# import json
+# import time
 import os
 import hmac
 import hashlib
 from dotenv import load_dotenv
-
+from pymongo.server_api import ServerApi
 load_dotenv()
 # Setup Flask app
 app = Flask(__name__)
@@ -18,12 +18,13 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # Initialize MongoDB
 
-mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
+# mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
 pass_=os.getenv("MONGODB_PASSWORD")
 uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # SALT  = bcrypt.gensalt() 
-mongo.db.users.create_index([("email", 1)], unique=True)
+
 client = MongoClient(uri, server_api=ServerApi("1"))
+
 try:
     client.admin.command("ping")
     print("Pinged your deployment. You successfully connected to MongoDB!")
@@ -31,6 +32,7 @@ except Exception as e:
     print(e)
 # db = client["GRID"]
 db = client["DUSTBIN"]
+db.users.create_index([("email", 1)], unique=True)
 # Initialize Redis Client
 # redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
@@ -77,12 +79,12 @@ def initiate_payment(amount, email, phone, provider, dustbin):
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.json
-    existing_user = mongo.db.users.find_one({"email": data["email"]})
+    existing_user = db.users.find_one({"email": data["email"]})
     if existing_user:
         return jsonify({"error": "User already exists"}), 409
 
     hashed_password = generate_password_hash(data["password"])
-    mongo.db.users.insert_one({"email": data["email"], "password": hashed_password})
+    db.users.insert_one({"email": data["email"], "password": hashed_password})
     return jsonify({"message": "User created successfully"}), 201
 
 
@@ -90,7 +92,7 @@ def signup():
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
-    user = mongo.db.users.find_one({"email": data["email"]})
+    user = db.users.find_one({"email": data["email"]})
     if user and check_password_hash(user["password"], data["password"]):
         session["user_id"] = str(user["_id"])
         return jsonify({"message": "Logged in successfully"}), 200
@@ -112,7 +114,7 @@ def add_dustbin():
         return jsonify({"error": "Unauthorized"}), 403
 
     data = request.json
-    mongo.db.dustbins.update_one(
+    db.dustbins.update_one(
         {"dustbin_id": data["dustbin_id"]},
         {
             "$set": {
@@ -134,7 +136,7 @@ def list_dustbins():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    dustbins = list(mongo.db.dustbins.find({"user_id": user_id}))
+    dustbins = list(db.dustbins.find({"user_id": user_id}))
     print(dustbins)
     return Response(dumps(dustbins), mimetype="application/json")
 
@@ -156,7 +158,7 @@ def payment_processing():
     payment_response = initiate_payment(
         300, user_email, phone_number, provider, dustbin_id
     )
-    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    user_id = db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     print(payment_response)
     _logger.info(payment_response)
     if user_id:
@@ -166,10 +168,10 @@ def payment_processing():
 
             if data.get("status") == "pay_offline":
                 reference = data["reference"]
-                mongo.db.dustbins.update_one(
+                db.dustbins.update_one(
                     {"dustbin_id": dustbin_id}, {"$set": {"reference_pay": reference}}
                 )
-                # mongo.db.pending_payments.insert_one(
+                # db.pending_payments.insert_one(
                 #     {"user_id": user_id, "dustbin_id": dustbin_id, "payment_url": pay_url}
                 # )""
                 # redis_client.publish(
@@ -213,13 +215,13 @@ def update_dustbin_state():
     dustbin_id = data.get("dustbin_id")
     state = data.get("state")
 
-    mongo.db.dustbins.update_one(
+    db.dustbins.update_one(
         {"dustbin_id": dustbin_id},
         {"$set": {"state": state}},
     )
 
     # Publish message to Redis channel
-    user_id = mongo.db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    user_id = db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
     if user_id:
         pass
 
@@ -240,7 +242,7 @@ def update_dustbin_state():
 @app.route("/register_dustbin", methods=["POST"])
 def register_dustbin():
     data = request.json
-    mongo.db.dustbins.update_one(
+    db.dustbins.update_one(
         {"dustbin_id": data["dustbin_id"]},
         {"$set": {"state": data.get("state", "empty")}},
         upsert=True,
@@ -297,14 +299,14 @@ def payment_webhook():
         if status == "success":
             # Find the pending payment in MongoDB using the reference ID
             print("here", reference)
-            dustbin = mongo.db.dustbins.find_one({"reference_pay": reference})
+            dustbin = db.dustbins.find_one({"reference_pay": reference})
             if dustbin:
                 # Update Dustbin state to "paid"
-                mongo.db.dustbins.update_one(
+                db.dustbins.update_one(
                     {"reference_pay": reference}, {"$set": {"reference_pay": "None"}}
                 )
                 # Remove the pending payment entry
-                # mongo.db.pending_payments.delete_one({"reference": reference})
+                # db.pending_payments.delete_one({"reference": reference})
 
                 # Notify the user of the successful payment using Redis Pub/Sub
                 # redis_client.publish(
