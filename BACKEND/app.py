@@ -30,11 +30,11 @@ uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/DUSTBIN?retryWr
 app.config["MONGO_URI"] =uri
 # client = MongoClient(uri, server_api=ServerApi("1"),connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
 client=PyMongo(app)
-try:
-    client.admin.command("ping")
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+# try:
+#     client.admin.command("ping")
+#     print("Pinged your deployment. You successfully connected to MongoDB!")
+# except Exception as e:
+#     print(e)
 # db = client["GRID"]
 db = client.db
 db.users.create_index([("email", 1)], unique=True)
