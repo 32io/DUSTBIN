@@ -2,7 +2,7 @@ import requests
 import sseclient
 import json
 # Server URL
-BASE_URL = "http://factual-flying-scorpion.ngrok-free.app"
+BASE_URL = "http://127.0.0.1:5000"
 
 # User data for signup and login
 user_data = {

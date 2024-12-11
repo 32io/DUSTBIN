@@ -120,7 +120,7 @@ def add_dustbin():
             "$set": {
                 "user_id": user_id,
                 "dustbin_id": data["dustbin_id"],
-                "state": "empty",
+                # "state": "empty",
                 "location": data.get("location"),
             }
         },
@@ -221,7 +221,9 @@ def update_dustbin_state():
     )
 
     # Publish message to Redis channel
-    user_id = db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    user_id = db.dustbins.find_one({"dustbin_id": dustbin_id})
+    print(user_id)
+    user_id=user_id.get("user_id")
     if user_id:
         pass
 
