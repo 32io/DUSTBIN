@@ -20,6 +20,7 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
 pass_=os.getenv("MONGODB_PASSWORD")
+print(pass_,"heeeeeeeeeeeeeeeeeeeeeee")
 uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # SALT  = bcrypt.gensalt() 
 
