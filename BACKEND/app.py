@@ -11,6 +11,7 @@ import hmac
 import hashlib
 from dotenv import load_dotenv
 from pymongo.server_api import ServerApi
+from flask_pymongo import PyMongo
 load_dotenv()
 # Setup Flask app
 app = Flask(__name__)
@@ -24,8 +25,11 @@ pass_=os.getenv("MONGODB_PASSWORD")
 uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # SALT  = bcrypt.gensalt() 
 
-client = MongoClient(uri, server_api=ServerApi("1"),connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
 
+app = Flask(__name__)
+app.config["MONGO_URI"] =uri
+# client = MongoClient(uri, server_api=ServerApi("1"),connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
+client=PyMongo(app)
 try:
     client.admin.command("ping")
     print("Pinged your deployment. You successfully connected to MongoDB!")

@@ -4,3 +4,4 @@ redis
 flask 
 python-dotenv
 requests
+Flask-PyMongo
