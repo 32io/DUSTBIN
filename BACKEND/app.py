@@ -20,11 +20,11 @@ app.secret_key = "your_secret_key"  # Change to a more secure secret
 
 # mongo = MongoClient("mongodb://localhost:27017/trash_mgmt")
 pass_=os.getenv("MONGODB_PASSWORD")
-print(pass_,"heeeeeeeeeeeeeeeeeeeeeee")
+# print(pass_,"heeeeeeeeeeeeeeeeeeeeeee")
 uri = f"mongodb+srv://admin:{pass_}@cluster0.hyzrrug.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # SALT  = bcrypt.gensalt() 
 
-client = MongoClient(uri, server_api=ServerApi("1"))
+client = MongoClient(uri, server_api=ServerApi("1"),connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
 
 try:
     client.admin.command("ping")
