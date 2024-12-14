@@ -1,8 +1,9 @@
 import requests
 import sseclient
 import json
+import time
 # Server URL
-BASE_URL = "https://bromeo.pythonanywhere.com"
+BASE_URL = "http://localhost:5000"
 
 # User data for signup and login
 user_data = {
@@ -74,24 +75,31 @@ def initiate_payment(dustbin_id):
 # 5. Listen for SSE Notifications
 def listen_for_notifications():
     print("Listening for SSE notifications...")
-    with session.get(f"{BASE_URL}/notifications", stream=True) as response:
-        client = sseclient.SSEClient(response)
+    while True:
+        
+        try:
+            # Make a GET request to the notifications endpoint
+            response = session.get(f"{BASE_URL}/notifications", timeout=10)
+            response.raise_for_status()  # Raise an HTTPError if the response has an error status
 
-        for event in client.events():
-            print("Received event:", event.data)
-            try:
-                # Parse the notification as JSON
-                for notification_data in json.loads(event.data):
-                
+            # Parse the notifications received
+            notifications = response.json()  # Assuming the response is JSON
+            for notification_data in notifications:
                 # Check if the notification is about a "full" dustbin state
-                    if"full" in  str( notification_data.get("state") ) :
-                        print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
-                        initiate_payment(notification_data.get("dustbin_id"))
-                    else:
-                        print("Notification received:", notification_data)
-            except Exception as e:
-                print("Error processing notification:", e)
+                if "full" in str(notification_data.get("state")):
+                    print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
+                    initiate_payment(notification_data.get("dustbin_id"))
+                else:
+                    print("Notification received:", notification_data)
+        except requests.exceptions.RequestException as req_err:
+            print(f"Request error: {req_err}")
+        except json.JSONDecodeError as json_err:
+            print(f"JSON parsing error: {json_err}")
+        except Exception as e:
+            print(f"Error processing notification: {e}")
 
+        # Wait for 10 seconds before making the next request
+        time.sleep(10)
 # Running the client sequence
 if __name__ == "__main__":
     signup()  # Step 1: Sign up the user

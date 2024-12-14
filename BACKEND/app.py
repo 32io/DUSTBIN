@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, session, Response, stream_with_contex
 from werkzeug.security import generate_password_hash, check_password_hash
 import time, requests
 from dotenv import load_dotenv
-
+# import time
 # Flask App Setup
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure key
@@ -183,31 +183,32 @@ def get_notifications():
 
     def event_stream():
         # Listen for notifications from in-memory storage (notifications dict)
-        while True:
+        # while True:
             # Get notifications for the current user
             user_notifications = notifications.get(user_id, [])
+            return json.dumps(user_notifications)
             # if user_notifications:
 
             # print(user_notifications)
-            if user_notifications:
-                # print("rrrrrrrrrrrrrrrrrr")
+            # if user_notifications:
+            #     # print("rrrrrrrrrrrrrrrrrr")
 
-                # Send each notification as an SSE event
-                # for notification in user_notifications:
-                yield f"data: {json.dumps(user_notifications)}\n\n"
-                # print(user_notifications)
-                notifications[user_id] = []
-                # time.sleep(2)
-            else:
-                # print("here")
-                time.sleep(3)
-                # pass
-                # continue
+            #     # Send each notification as an SSE event
+            #     # for notification in user_notifications:
+            #     yield f"data: {json.dumps(user_notifications)}\n\n"
+            #     # print(user_notifications)
+            #     notifications[user_id] = []
+            #     # time.sleep(2)
+            # else:
+            #     # print("here")
+            #     time.sleep(3)
+            #     # pass
+            #     # continue
             # else:
             #     time.sleep(3)
             # Clear notifications after sending to avoid duplicates
-
-    return Response(event_stream(), content_type="text/event-stream")
+    return event_stream()
+    # return Response(event_stream(), content_type="text/event-stream")
 
 
 @app.route("/payment_webhook", methods=["POST"])
