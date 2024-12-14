@@ -4,7 +4,7 @@ import hmac
 import hashlib
 from flask import Flask, request, jsonify, session, Response, stream_with_context
 from werkzeug.security import generate_password_hash, check_password_hash
-
+import time
 # Flask App Setup
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure key
@@ -128,6 +128,7 @@ def update_dustbin_state():
         }
         save_db("dustbins") 
         user_id=None
+    print(user_id,"jjjjjj")
     if user_id:
         if user_id not in notifications:
             notifications[user_id] = []
@@ -148,10 +149,44 @@ def get_notifications():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user_notifications = notifications.get(user_id, [])
-    notifications[user_id] = []  # Clear notifications after retrieval
-    return jsonify(user_notifications), 200
+#     user_notifications = notifications.get(user_id, [])
+#     notifications[user_id] = []  # Clear notifications after retrieval
+#     return jsonify(user_notifications), 200
+# @app.route("/notifications")
+# @stream_with_context
+# def notifications():
+#     user_id = session.get("user_id")
+#     if not user_id:
+        # return jsonify({"error": "Unauthorized"}), 403
 
+    def event_stream():
+        # Listen for notifications from in-memory storage (notifications dict)
+        while True:
+            # Get notifications for the current user
+            user_notifications = notifications.get(user_id, [])
+            # if user_notifications:
+            
+            # print(user_notifications)
+            if user_notifications:
+                print("rrrrrrrrrrrrrrrrrr")
+
+            # Send each notification as an SSE event
+            # for notification in user_notifications:
+                yield f"data: {json.dumps(user_notifications)}\n\n"
+                print(user_notifications)
+                notifications[user_id] = []
+                # time.sleep(2)
+            else:
+                print("here")
+                time.sleep(3)
+                # pass
+                # continue
+            # else:
+            #     time.sleep(3)
+            # Clear notifications after sending to avoid duplicates
+            
+    
+    return Response(event_stream(), content_type="text/event-stream")
 
 @app.route("/payment_webhook", methods=["POST"])
 def payment_webhook():

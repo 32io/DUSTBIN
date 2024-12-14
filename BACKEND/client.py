@@ -2,7 +2,7 @@ import requests
 import sseclient
 import json
 # Server URL
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "http://localhost:5000"
 
 # User data for signup and login
 user_data = {
@@ -81,14 +81,14 @@ def listen_for_notifications():
             print("Received event:", event.data)
             try:
                 # Parse the notification as JSON
-                notification_data = json.loads(event.data)
-
+                for notification_data in json.loads(event.data):
+                
                 # Check if the notification is about a "full" dustbin state
-                if"full" in  str( notification_data.get("state") ) :
-                    print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
-                    initiate_payment(notification_data.get("dustbin_id"))
-                else:
-                    print("Notification received:", notification_data)
+                    if"full" in  str( notification_data.get("state") ) :
+                        print(f"Dustbin {notification_data.get('dustbin_id')} is full. Initiating payment...")
+                        initiate_payment(notification_data.get("dustbin_id"))
+                    else:
+                        print("Notification received:", notification_data)
             except Exception as e:
                 print("Error processing notification:", e)
 
