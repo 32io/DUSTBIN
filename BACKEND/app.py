@@ -186,6 +186,7 @@ def get_notifications():
         # while True:
             # Get notifications for the current user
             user_notifications = notifications.get(user_id, [])
+            notifications[user_id] = []
             return json.dumps(user_notifications)
             # if user_notifications:
 
@@ -197,7 +198,7 @@ def get_notifications():
             #     # for notification in user_notifications:
             #     yield f"data: {json.dumps(user_notifications)}\n\n"
             #     # print(user_notifications)
-            #     notifications[user_id] = []
+            #     
             #     # time.sleep(2)
             # else:
             #     # print("here")
