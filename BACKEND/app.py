@@ -4,7 +4,8 @@ import hmac
 import hashlib
 from flask import Flask, request, jsonify, session, Response, stream_with_context
 from werkzeug.security import generate_password_hash, check_password_hash
-import time
+import time, requests
+
 # Flask App Setup
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure key
@@ -12,10 +13,11 @@ app.secret_key = "your_secret_key"  # Replace with a secure key
 # In-memory databases and file paths
 USERS_FILE = "users_db.json"
 DUSTBINS_FILE = "dustbins_db.json"
-
+PAYSTACK_SECRET_KEY = os.getenv("paystack_live")
 users_db = {}
 dustbins_db = {}
 notifications = {}  # In-memory notifications storage
+
 
 # Load data from JSON files at startup
 def load_data(file_path):
@@ -117,18 +119,29 @@ def update_dustbin_state():
 
     if dustbin_id in dustbins_db:
         dustbins_db[dustbin_id]["state"] = state
-        user_id = dustbins_db[dustbin_id].get("user_id",None)
-        save_db("dustbins") # Save only the dustbins database
+        user_id = dustbins_db[dustbin_id].get("user_id", None)
+        save_db("dustbins")  # Save only the dustbins database
+        print(user_id, "jjjjjj")
+        if user_id:
+            if user_id not in notifications:
+                notifications[user_id] = []
+            notifications[user_id].append(
+                {
+                    "message": "Dustbin state updated",
+                    "dustbin_id": dustbin_id,
+                    "state": state,
+                }
+            )
+
         return jsonify({"message": "Dustbin state updated"}), 200
     else:
-        
-        dustbins_db[dustbin_id]={
-            "state":state,
 
+        dustbins_db[dustbin_id] = {
+            "state": state,
         }
-        save_db("dustbins") 
-        user_id=None
-    print(user_id,"jjjjjj")
+        save_db("dustbins")
+        user_id = None
+    print(user_id, "jjjjjj")
     if user_id:
         if user_id not in notifications:
             notifications[user_id] = []
@@ -139,7 +152,7 @@ def update_dustbin_state():
                 "state": state,
             }
         )
-    
+
     return jsonify({"message": "Dustbin just  added"}), 200
 
 
@@ -149,15 +162,15 @@ def get_notifications():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-#     user_notifications = notifications.get(user_id, [])
-#     notifications[user_id] = []  # Clear notifications after retrieval
-#     return jsonify(user_notifications), 200
-# @app.route("/notifications")
-# @stream_with_context
-# def notifications():
-#     user_id = session.get("user_id")
-#     if not user_id:
-        # return jsonify({"error": "Unauthorized"}), 403
+    #     user_notifications = notifications.get(user_id, [])
+    #     notifications[user_id] = []  # Clear notifications after retrieval
+    #     return jsonify(user_notifications), 200
+    # @app.route("/notifications")
+    # @stream_with_context
+    # def notifications():
+    #     user_id = session.get("user_id")
+    #     if not user_id:
+    # return jsonify({"error": "Unauthorized"}), 403
 
     def event_stream():
         # Listen for notifications from in-memory storage (notifications dict)
@@ -165,13 +178,13 @@ def get_notifications():
             # Get notifications for the current user
             user_notifications = notifications.get(user_id, [])
             # if user_notifications:
-            
+
             # print(user_notifications)
             if user_notifications:
                 print("rrrrrrrrrrrrrrrrrr")
 
-            # Send each notification as an SSE event
-            # for notification in user_notifications:
+                # Send each notification as an SSE event
+                # for notification in user_notifications:
                 yield f"data: {json.dumps(user_notifications)}\n\n"
                 print(user_notifications)
                 notifications[user_id] = []
@@ -184,9 +197,9 @@ def get_notifications():
             # else:
             #     time.sleep(3)
             # Clear notifications after sending to avoid duplicates
-            
-    
+
     return Response(event_stream(), content_type="text/event-stream")
+
 
 @app.route("/payment_webhook", methods=["POST"])
 def payment_webhook():
@@ -221,6 +234,90 @@ def payment_webhook():
     return jsonify({"status": "ok"}), 200
 
 
+@app.route("/woww", methods=["GET"])
+def home():
+    return Response("I AM WORKING ")
+
+
+def initiate_payment(amount, email, phone, provider, dustbin):
+    url = "https://api.paystack.co/charge"
+    headers = {
+        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "amount": amount,
+        "email": email,
+        "currency": "KES",
+        "dustbin_id": dustbin,
+        "mobile_money": {
+            "phone": phone,
+            "provider": provider,
+        },
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return (
+        response.json()
+        if response.status_code == 200
+        else {"error": "Payment initiation failed", "details": response.json()}
+    )
+
+
+@app.route("/payment_start", methods=["POST"])
+def payment_processing():
+    data = request.json
+    user_email = data.get("email")
+    dustbin_id = data.get("dustbin_id")
+    phone_number = data.get("phone")
+
+    provider = "mpesa"  # Mobile money provider
+
+    payment_response = initiate_payment(
+        300, user_email, phone_number, provider, dustbin_id
+    )
+    # user_id = db.dustbins.find_one({"dustbin_id": dustbin_id}).get("user_id")
+    user_id = dustbins_db.get(dustbin_id, {}).get("user_id")
+    print(payment_response)
+    # _logger.info(payment_response)
+    if user_id:
+        if "error" not in payment_response:
+            data = payment_response["data"]
+            print(data)
+
+            if data.get("status") == "pay_offline":
+                reference = data["reference"]
+                # db.dustbins.update_one(
+                #     {"dustbin_id": dustbin_id}, {"$set": {"reference_pay": reference}}
+                # )
+                dustbins_db[dustbin_id]["reference_pay"] = reference
+                save_db("dustbins")
+            else:
+                return (
+                    jsonify(
+                        {
+                            "error": "Payment initiation failed",
+                            "details": payment_response,
+                        }
+                    ),
+                    500,
+                )
+        else:
+            print(payment_response)
+            return (
+                jsonify(
+                    {"error": "Payment initiation failed", "details": payment_response}
+                ),
+                500,
+            )
+
+    return jsonify({"message": "Payment suceesful"}), 200
+
+
 # Run the app
 if __name__ == "__main__":
     app.run(debug=True)
+
+"""
+UNIQUE DUSTBIN ID
+UNIQUE USER ID 
+"""

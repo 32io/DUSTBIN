@@ -1,23 +1,7 @@
 {
     "testuser@example.com": {
-        "password": "scrypt:32768:8:1$DQVoWnC6hz5Zg6Jt$4d394a9f2bb31bcec4b2779d1395b2f4d2830f27ee279f38af696a5f9bc9d00ed34025c2e5b9ed089e5afd51244ee17def54d322bcad8bb06ca9411b103d4bc5",
-        "dustbins": [
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123",
-            "DB123"
-        ]
+        "user_id": "3807b542-4099-4fbf-9abd-5c1097222a62",
+        "password": "scrypt:32768:8:1$FSPSToV0sTuIfJol$557ff0244ab32ca7b965ede37c1d6416d3dce335c017f673d1d4cfd51ffc2e2ed396bd61073e730be6bcfaa7e929d18d9578673a74b9b06dec6001837eab721b",
+        "dustbins": []
     }
 }

@@ -1,9 +1,0 @@
-{
-    "DB123": {
-        "user_id": "testuser@example.com",
-        "dustbin_id": "DB123",
-        "location": "Street 123, City",
-        "state": "full-100",
-        "reference_pay": null
-    }
-}
