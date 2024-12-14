@@ -5,11 +5,12 @@ import hashlib
 from flask import Flask, request, jsonify, session, Response, stream_with_context
 from werkzeug.security import generate_password_hash, check_password_hash
 import time, requests
+from dotenv import load_dotenv
 
 # Flask App Setup
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure key
-
+load_dotenv()
 # In-memory databases and file paths
 USERS_FILE = "users_db.json"
 DUSTBINS_FILE = "dustbins_db.json"
@@ -93,9 +94,9 @@ def add_dustbin():
         "state": "empty",
         "reference_pay": None,
     }
-    users_db[user_id]["dustbins"].append(dustbin_id)
+    # users_db[user_id]["dustbins"].append(dustbin_id)
     save_db("dustbins")  # Save only the dustbins database
-    save_db("users")  # Save users since dustbins list for user is updated
+    # save_db("users")  # Save users since dustbins list for user is updated
     return jsonify({"message": "Dustbin added"}), 201
 
 
@@ -105,10 +106,18 @@ def list_dustbins():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
+
+    # Filter dustbins directly based on the `user_id`
     user_dustbins = [
-        dustbins_db[dustbin_id] for dustbin_id in users_db[user_id]["dustbins"]
+        dustbin for dustbin in dustbins_db.values() if dustbin["user_id"] == user_id
     ]
+
     return jsonify(user_dustbins), 200
+
+    # user_dustbins = [
+    #     dustbins_db[dustbin_id] for dustbin_id in users_db[user_id]["dustbins"]
+    # ]
+    # return jsonify(user_dustbins), 200
 
 
 @app.route("/dustbin_state", methods=["POST"])
@@ -181,16 +190,16 @@ def get_notifications():
 
             # print(user_notifications)
             if user_notifications:
-                print("rrrrrrrrrrrrrrrrrr")
+                # print("rrrrrrrrrrrrrrrrrr")
 
                 # Send each notification as an SSE event
                 # for notification in user_notifications:
                 yield f"data: {json.dumps(user_notifications)}\n\n"
-                print(user_notifications)
+                # print(user_notifications)
                 notifications[user_id] = []
                 # time.sleep(2)
             else:
-                print("here")
+                # print("here")
                 time.sleep(3)
                 # pass
                 # continue

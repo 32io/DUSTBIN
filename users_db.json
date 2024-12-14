@@ -1,7 +1,6 @@
 {
     "testuser@example.com": {
-        "user_id": "3807b542-4099-4fbf-9abd-5c1097222a62",
-        "password": "scrypt:32768:8:1$FSPSToV0sTuIfJol$557ff0244ab32ca7b965ede37c1d6416d3dce335c017f673d1d4cfd51ffc2e2ed396bd61073e730be6bcfaa7e929d18d9578673a74b9b06dec6001837eab721b",
+        "password": "scrypt:32768:8:1$OnnN5BhXNikbvcnQ$e520c66d40e250a6b3ab0af1c7ebce9d0725f5272d8b07b95da107ddc07e8f586725ac662aac2e67b494f68bdf02f080f9172764985ad3fede1ba4991f663043",
         "dustbins": []
     }
 }
