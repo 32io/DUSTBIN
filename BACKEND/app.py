@@ -117,8 +117,18 @@ def update_dustbin_state():
 
     if dustbin_id in dustbins_db:
         dustbins_db[dustbin_id]["state"] = state
-        user_id = dustbins_db[dustbin_id]["user_id"]
+        user_id = dustbins_db[dustbin_id].get("user_id",None)
+        save_db("dustbins") # Save only the dustbins database
+        return jsonify({"message": "Dustbin state updated"}), 200
+    else:
+        
+        dustbins_db[dustbin_id]={
+            "state":state,
 
+        }
+        save_db("dustbins") 
+        user_id=None
+    if user_id:
         if user_id not in notifications:
             notifications[user_id] = []
         notifications[user_id].append(
@@ -128,9 +138,8 @@ def update_dustbin_state():
                 "state": state,
             }
         )
-        save_db("dustbins")  # Save only the dustbins database
-        return jsonify({"message": "Dustbin state updated"}), 200
-    return jsonify({"error": "Dustbin not found"}), 404
+    
+    return jsonify({"message": "Dustbin just  added"}), 200
 
 
 @app.route("/notifications", methods=["GET"])

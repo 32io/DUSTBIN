@@ -18,11 +18,11 @@ class ADRUINO:
             "dustbin_id": self.dustbin_id,
             "capacity": self.capacity
         }
-        try:
-            response = requests.post(f"{self.server_url}/register_dustbin", json=registration_data)
-            print(f"Registered dustbin {self.dustbin_id}. Server response: {response.status_code}")
-        except Exception as e:
-            print(f"Failed to register dustbin: {e}")
+        # try:
+        #     response = requests.post(f"{self.server_url}/register_dustbin", json=registration_data)
+        #     print(f"Registered dustbin {self.dustbin_id}. Server response: {response.status_code}")
+        # except Exception as e:
+        #     print(f"Failed to register dustbin: {e}")
 
     def update_trash_level(self, added_trash):
         """
@@ -47,6 +47,7 @@ class ADRUINO:
             }
             try:
                 response = requests.post(f"{self.server_url}/dustbin_state", json=status_data)
+                print(response.json())
                 print(f"Sent update. Server response: {response.status_code}")
             except Exception as e:
                 print(f"Failed to send data: {e}")
