@@ -2,7 +2,7 @@ import requests
 import sseclient
 import json
 # Server URL
-BASE_URL = "http://localhost:5000"
+BASE_URL = "https://bromeo.pythonanywhere.com"
 
 # User data for signup and login
 user_data = {
