@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Replace with a secure key
 load_dotenv()
+ip = requests.get("https://api.ipify.org?format=json").json()["ip"]
+print(ip)
 # In-memory databases and file paths
 USERS_FILE = "users_db.json"
 DUSTBINS_FILE = "dustbins_db.json"
