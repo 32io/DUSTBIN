@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base colors -->
+    <color name="purple_200">#BB86FC</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#00B0B0</color>
+    <color name="teal_700">#80CBC4</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="green">#49D906</color>
+    <color name="red">#CB2B0E</color>
+    <color name="primary_text">#3700B3</color>
+    <color name="neon_blue">#00FFFF</color>
+    <color name="neon_blue_light">#80FFFF</color>
+    <color name="neon_green">#00FF00</color>
+    <color name="neon_green_light">#80FF80</color>
+    <color name="neon_purple">#FF00FF</color>
+    <color name="progress_track">#1A2037</color>
+    <color name="text_secondary">#80FFFFFF</color>
+    <color name="background_dark">#1A2037</color>
+    <color name="background_darker">#151B2E</color>
+    <color name="background_darkest">#0F1525</color>
+    <color name="neon_blue_transparent">#4000FFFF</color>
+    <color name="neon_green_transparent">#4000FF00</color>
+    <color name="error_color">#FF5252</color>
+    <color name="background_primary">#1E1E1E</color>
+    <color name="accent_primary">#00B0B0</color>
+    <color name="accent_secondary">#9FA0A4</color>
+    <color name="gray">#9DA09B</color>
+
+    <!-- Semantic colors -->
+    <color name="button_color">@color/purple_500</color>
+    <color name="background_color">@color/purple_200</color>
+    <color name="background_gradient">@color/purple_200</color>
+    <color name="primary_color">@color/purple_200</color>
+    <color name="background_light">@color/purple_200</color>
+    <color name="colorPrimary">@color/white</color>
+</resources>

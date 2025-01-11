@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Current Payment Rate -->
+    <TextView
+        android:id="@+id/payment_rate_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Payment Rate: KES 100/collection"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Select Dustbin -->
+    <TextView
+        android:id="@+id/select_dustbin_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select a dustbin to see details"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Fill Level Text -->
+    <TextView
+        android:id="@+id/fill_level_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Fill Level"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Email Input -->
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Phone Number Input -->
+    <EditText
+        android:id="@+id/phone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone Number"
+        android:inputType="phone"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Initiate Payment Button -->
+    <Button
+        android:id="@+id/pay_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Initiate Payment"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Payment History Button -->
+    <Button
+        android:id="@+id/payment_history_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Payment History"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Dustbin Recycler View -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dustbin_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+</LinearLayout>

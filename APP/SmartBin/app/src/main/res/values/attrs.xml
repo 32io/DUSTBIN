@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="fabTint" format="color" />
+    <declare-styleable name="NeonView">
+        <attr name="glowColor" format="color"/>
+        <attr name="glowRadius" format="dimension"/>
+        <attr name="pulseAnimation" format="boolean"/>
+    </declare-styleable>
+</resources>

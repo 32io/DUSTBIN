@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.smartbin.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home">
+    <action
+        android:id="@+id/action_homeFragment_to_scheduleFragment"
+        app:destination="@id/nav_schedule" />
+    </fragment>
+
+    <!-- Monitor Fragment for bin status display -->
+    <fragment
+        android:id="@+id/nav_monitor"
+        android:name="com.example.smartbin.ui.monitor.MonitorFragment"
+        android:label="@string/menu_monitor"
+        tools:layout="@layout/fragment_monitor" />
+
+    <!-- Schedule Fragment for scheduling collections -->
+    <fragment
+        android:id="@+id/nav_schedule"
+        android:name="com.example.smartbin.ui.schedule.ScheduleFragment"
+        android:label="@string/menu_schedule"
+        tools:layout="@layout/fragment_schedule" />
+
+    <!-- Payment Fragment for mobile money payment options -->
+    <fragment
+        android:id="@+id/nav_payment"
+        android:name="com.example.smartbin.PaymentFragment"
+        android:label="@string/menu_payment"
+        tools:layout="@layout/fragment_payment" />
+    <fragment
+        android:id="@+id/nav_payment_history"
+        android:name="com.example.smartbin.PaymentHistoryFragment"
+        android:label="Payment History"
+        tools:layout="@layout/nav_payment_history" />
+    <fragment
+        android:id="@+id/nav_bin_status"
+        android:name="com.example.smartbin.BinStatusFragment"
+        android:label="Bin Status"
+        tools:layout="@layout/nav_bin_status" />
+    <fragment
+        android:id="@+id/nav_analytics"
+        android:label="Analytics"
+        android:name="com.example.smartbin.AnalyticsFragment"
+        tools:layout="@layout/fragment_analytics"/>
+</navigation>

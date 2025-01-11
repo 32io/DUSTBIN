@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/swipe_refresh_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient_background"
+                android:paddingBottom="24dp">
+
+                <!-- Holographic Clock Display -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/clock_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="12dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/neon_blue"
+                    app:cardBackgroundColor="#1A2037"
+                    android:alpha="0.95"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="24dp">
+
+                        <TextView
+                            android:id="@+id/real_time_clock"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="00:00:00"
+                            android:textSize="56sp"
+                            android:fontFamily="@font/orbitron"
+                            android:textColor="@color/neon_blue"
+                            android:textStyle="bold"
+                            android:gravity="center"
+                            android:shadowColor="@color/neon_blue"
+                            android:shadowRadius="12"
+                            android:shadowDx="0"
+                            android:shadowDy="0"/>
+
+                        <TextView
+                            android:id="@+id/date_display"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Loading date..."
+                            android:textSize="18sp"
+                            android:fontFamily="@font/orbitron"
+                            android:textColor="@color/neon_blue_light"
+                            android:gravity="center"
+                            android:layout_marginTop="8dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Bin Status Display -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bin_info_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="12dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/neon_green"
+                    app:cardBackgroundColor="#1A2037"
+                    android:alpha="0.95"
+                    app:layout_constraintTop_toBottomOf="@id/clock_card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="24dp">
+
+                        <TextView
+                            android:id="@+id/bin_status_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Smart Bin Status"
+                            android:textSize="28sp"
+                            android:fontFamily="@font/orbitron"
+                            android:textColor="@color/neon_green"
+                            android:gravity="center"
+                            android:layout_marginBottom="24dp"/>
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/bin_fill_progress_bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            app:indicatorSize="240dp"
+                            app:trackThickness="20dp"
+                            app:trackColor="@color/progress_track"
+                            app:indicatorColor="@color/neon_green"
+                            android:progress="0"/>
+
+                        <TextView
+                            android:id="@+id/bin_state_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/orbitron"
+                            android:textColor="@color/neon_green_light"
+                            android:gravity="center"/>
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="16dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/temperature_chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="22°C"
+                                app:chipBackgroundColor="#1A2037"
+                                app:chipStrokeColor="@color/neon_blue"
+                                app:chipStrokeWidth="1dp"
+                                android:textColor="@color/neon_blue"/>
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/humidity_chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="45% RH"
+                                app:chipBackgroundColor="#1A2037"
+                                app:chipStrokeColor="@color/neon_blue"
+                                app:chipStrokeWidth="1dp"
+                                android:textColor="@color/neon_blue"/>
+                        </com.google.android.material.chip.ChipGroup>
+
+                        <TextView
+                            android:id="@+id/last_updated_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/orbitron"
+                            android:textColor="@color/text_secondary"
+                            android:gravity="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Usage Chart Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/metrics_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="12dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/neon_purple"
+                    app:cardBackgroundColor="#1A2037"
+                    android:alpha="0.95"
+                    app:layout_constraintTop_toBottomOf="@id/bin_info_card">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/usage_chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:layout_margin="16dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- Schedule FAB -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/schedule_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:text="Schedule"
+            app:icon="@drawable/ic_schedule"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/neon_blue"
+            app:elevation="8dp"
+            app:cornerRadius="24dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"/>
+
+        <!-- Loading Overlay -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loading_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:indicatorColor="@color/neon_blue"
+                app:trackColor="@android:color/transparent"
+                app:indicatorSize="64dp"
+                app:trackThickness="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="sensor_progress_bar" type="id" />
+    <item name="esp_progress_bar" type="id" />
+    <item name="sensor_status" type="id" />
+    <item name="esp_status" type="id" />
+    <item name="dark_mode_switch" type="id" />
+    <item name="real_time_clock" type="id" />
+    <item name="payment_rates" type="id" />
+    <item name="payment_history" type="id" />
+    <item name="payment_recycler_view" type="id" />
+    <item name="date_input" type="id" />
+    <item name="time_input" type="id" />
+    <item name="schedule_button" type="id" />
+    <item name="schedule_status" type="id" />
+    <item name="bin_image" type="id" />
+    <item name="inputLayoutName" type="id" />
+    <item name="inputLayoutAddress" type="id" />
+    <item name="inputLayoutBinId" type="id" />
+    <item name="inputLayoutPassword" type="id" />
+    <item name="progressBar" type="id" />
+    <item name="passwordStrengthIndicator" type="id" />
+    <item name="bin_fill_level" type="id" />
+    <item name="collection_status" type="id" />
+    <item name="nav_analytics" type="id" />
+    <item name="email_input" type="id"/>
+    <item name="editTextEmail" type="id"/>
+    <item name="editTextLocation" type="id"/>
+    <item name="inputLayoutEmail" type="id"/>
+    <item name="inputLayoutLocation" type="id"/>
+    <item name="btn_add_dustbin" type="id"/>
+    <item name="btn_view_dustbins" type="id"/>
+</resources>

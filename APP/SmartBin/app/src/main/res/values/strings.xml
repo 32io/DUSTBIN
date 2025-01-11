@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">SmartBin</string>
+    <string name="menu_monitor">Monitor</string>
+    <string name="menu_schedule">Schedule</string>
+    <string name="menu_payment">Payment</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="schedule_navigation">Schedule Navigation</string>
+
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="bin_id">Bin ID</string>
+    <string name="smart_bin_icon">Smart Bin Icon</string>
+    <string name="_0">0</string>
+    <string name="sensor_readings_n_a">Sensor Readings: N/A</string>
+    <string name="bin_fill_level_45">Bin Fill Level: 45%</string>
+    <string name="enable_dark_mode">Enable Dark Mode</string>
+    <string name="settings">Settings</string>
+    <string name="amount_ksh_500">Amount: Ksh 500</string>
+    <string name="date_2024_11_21">Date: 2024–11–21</string>
+    <string name="todo">TODO</string>
+    <string name="blackades343_gmail_com">blackades343@gmail.com</string>
+    <string name="support_smartbin_com">support@smartbin.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="schedule_collection">Schedule Collection</string>
+
+</resources>
